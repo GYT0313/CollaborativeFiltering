@@ -622,7 +622,6 @@ public class CollaborativeFilteringByUser {
 			}
 			System.out.println("");
 			
-
 			// 根据相似用户，将其电影评分信息计算，计算出推荐电影
 			// 按电影名计算推荐值
 			// 电影推荐值一位数组
@@ -767,5 +766,5 @@ public class CollaborativeFilteringByUser {
 			System.out.println("");
 		}
 	}
-
+	
 }
