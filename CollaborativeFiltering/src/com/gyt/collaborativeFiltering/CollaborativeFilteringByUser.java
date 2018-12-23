@@ -469,29 +469,25 @@ public class CollaborativeFilteringByUser {
 			// 记录电影名
 			movies[movieIndex++] = key.toString();
 
-			// 将该电影用户评分写出到数组
+			// 将该电影的所有用户评分写到数组
 			String[] usersScoreData = new String[userCounts];
 			int num = 0;
 			for (Text userScore : values) {
+				System.out.print(userScore.toString() + "  ");
 				usersScoreData[num++] = userScore.toString();
 			}
+			System.out.println("");
 			// 计算用户与用户之间的评分差值 组成usrCounts * userCounts的数组
 			Double[][] userSimilarity = new Double[userCounts][userCounts];
-			// context的输出
-			String username = "";	// 直接赋值null会报错
-			String userScore = "";
+
 			for (int i = 0; i < userCounts; i++) {
 				// 分割，i为行
 				String userScore1 = usersScoreData[i];
 				int index1 = userScore1.indexOf("$");
-				String user1 = userScore1.substring(0, index1);
+
 				//System.out.println(user1);	// 如果输出的顺序与 users的顺序相同则正确
 				String score1 = userScore1.substring(index1 + 1);
-				// 将遍历的用户名赋值给username
-				if (i == userIndex2) {
-					username += user1;
-					userScore += score1;
-				}
+
 				for (int j = 0; j < userCounts; j++) {
 					// 分割，j为列
 					String userScore2 = usersScoreData[j];
@@ -507,7 +503,6 @@ public class CollaborativeFilteringByUser {
 					}
 					// 分割
 					int index2 = userScore2.indexOf("$");
-//					String user2 = userScore2.substring(0, index2);
 					String score2 = userScore2.substring(index2 + 1);
 
 					// 5 - 两个不同用户评分之差的绝对值 = 该电影下用户与用户之间的相似度
@@ -518,20 +513,13 @@ public class CollaborativeFilteringByUser {
 			// 写入map集合 key=电影  value=各用户在该电影中的评分相似度
 			userSimilarityMap.put(key.toString(), userSimilarity);
 			
-			int userID = 0;
-			// 获取用户对应在users数组中的下标
-			for (int k = 0; k < userCounts; k++) {
-				if (username.equals(users[k])) {
-					userID = k;
-					break;
-				}
-			}
 			/*
-			 * 使用判断是为了避免context重复写入，因为combiner会执行movieCounts次，
+			 * 使用判断是为了避免context重复写入
+			 * 因为程序：combiner会执行movieCounts次，
 			 * reducer会执行userCounts次，若不加判断最后会重复输出
 			 */
 			if (userIndex2 < userCounts) {	// 其实这里的value没有实际意义，因为在reducer中并没有使用
-				context.write(new Text(userID + "&" + username), new Text(key.toString() + "$" + userScore + ";"));
+				context.write(new Text(userIndex2 + "&" + users[userIndex2]), new Text("" + userIndex2));
 				userIndex2++;
 			}
 		}
@@ -622,6 +610,7 @@ public class CollaborativeFilteringByUser {
 			}
 			System.out.println("");
 			
+
 			// 根据相似用户，将其电影评分信息计算，计算出推荐电影
 			// 按电影名计算推荐值
 			// 电影推荐值一位数组
@@ -766,5 +755,5 @@ public class CollaborativeFilteringByUser {
 			System.out.println("");
 		}
 	}
-	
+
 }
